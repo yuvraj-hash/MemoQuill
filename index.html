@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memo Sphere</title>
+    <title>MemoQuill🪶</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill/dist/quill.snow.css">
     <style>
         body {
@@ -41,13 +41,13 @@
             display: block;
         }
         #toolbar {
-            margin-bottom: 20px; /* Added space between toolbar and editor */
+            margin-bottom: 20px;
         }
         #editor {
             height: 400px;
             border-radius: 10px;
             border: 1px solid #ccc;
-            margin-bottom: 20px; /* Added space between editor and buttons */
+            margin-bottom: 20px;
         }
         button {
             padding: 12px 20px;
@@ -68,8 +68,29 @@
 <body>
 <div id="app" class="container">
     <h1>MemoQuill🪶</h1>
-       <input type="text" id="noteTitle" placeholder="Enter Note Title">
-    <div id="toolbar"></div>
+    <input type="text" id="noteTitle" placeholder="Enter Note Title">
+    
+    <!-- Toolbar with proper buttons -->
+    <div id="toolbar">
+        <span class="ql-formats">
+            <button class="ql-bold"></button>
+            <button class="ql-italic"></button>
+            <button class="ql-underline"></button>
+            <button class="ql-link"></button>
+            <button class="ql-image"></button>
+            <button class="ql-video"></button>
+        </span>
+        <span class="ql-formats">
+            <select class="ql-header">
+                <option selected></option>
+                <option value="1">Heading 1</option>
+                <option value="2">Heading 2</option>
+            </select>
+            <button class="ql-list" value="ordered"></button>
+            <button class="ql-list" value="bullet"></button>
+        </span>
+    </div>
+
     <div id="editor"></div>
     <button onclick="saveNote()">Save Note</button>
     <button onclick="viewNotes()">View Saved Notes</button>
@@ -80,12 +101,7 @@
     const quill = new Quill('#editor', {
         theme: 'snow',
         modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline', 'link'],
-                [{ 'header': [1, 2, false] }],
-                ['image', 'video'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }]
-            ]
+            toolbar: '#toolbar'
         }
     });
 
@@ -115,27 +131,16 @@
         let notes = JSON.parse(localStorage.getItem('notes')) || [];
 
         if (editIndex !== null) {
-            // Update existing note
-            notes[editIndex] = {
-                title: title,
-                content: content,
-                date: new Date().toLocaleString()
-            };
+            notes[editIndex] = { title, content, date: new Date().toLocaleString() };
         } else {
-            // Add new note
-            const note = {
-                title: title,
-                content: content,
-                date: new Date().toLocaleString()
-            };
-            notes.push(note);
+            notes.push({ title, content, date: new Date().toLocaleString() });
         }
 
         localStorage.setItem('notes', JSON.stringify(notes));
         alert('Note saved!');
         document.getElementById('noteTitle').value = '';
         quill.root.innerHTML = '';
-        window.location.href = 'notes.html'; // Redirect to notes page after saving
+        window.location.href = 'notes.html';
     }
 
     function viewNotes() {
