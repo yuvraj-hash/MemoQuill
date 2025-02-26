@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memo Sphere</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill/dist/quill.snow.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74EBD5 0%, #9FACE6 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+            margin: 30px 0;
+            background: #ffffff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #noteTitle {
+            width: calc(75% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            display: block;
+        }
+        #toolbar {
+            margin-bottom: 20px; /* Added space between toolbar and editor */
+        }
+        #editor {
+            height: 400px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px; /* Added space between editor and buttons */
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+            margin-right: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="container">
+    <h1>MemoQuill🪶</h1>
+       <input type="text" id="noteTitle" placeholder="Enter Note Title">
+    <div id="toolbar"></div>
+    <div id="editor"></div>
+    <button onclick="saveNote()">Save Note</button>
+    <button onclick="viewNotes()">View Saved Notes</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/quill/dist/quill.min.js"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'link'],
+                [{ 'header': [1, 2, false] }],
+                ['image', 'video'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+            ]
+        }
+    });
+
+    function loadNoteForEditing() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const editIndex = urlParams.get('edit');
+        if (editIndex !== null) {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const note = notes[editIndex];
+            if (note) {
+                document.getElementById('noteTitle').value = note.title;
+                quill.root.innerHTML = note.content;
+            }
+        }
+    }
+
+    function saveNote() {
+        const title = document.getElementById('noteTitle').value;
+        const content = quill.root.innerHTML;
+        if (!title || !content) {
+            alert('Please enter a title and content for the note.');
+            return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const editIndex = urlParams.get('edit');
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        if (editIndex !== null) {
+            // Update existing note
+            notes[editIndex] = {
+                title: title,
+                content: content,
+                date: new Date().toLocaleString()
+            };
+        } else {
+            // Add new note
+            const note = {
+                title: title,
+                content: content,
+                date: new Date().toLocaleString()
+            };
+            notes.push(note);
+        }
+
+        localStorage.setItem('notes', JSON.stringify(notes));
+        alert('Note saved!');
+        document.getElementById('noteTitle').value = '';
+        quill.root.innerHTML = '';
+        window.location.href = 'notes.html'; // Redirect to notes page after saving
+    }
+
+    function viewNotes() {
+        window.location.href = 'notes.html';
+    }
+
+    window.onload = loadNoteForEditing;
+</script>
+</body>
+</html>

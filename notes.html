@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Notes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill/dist/quill.snow.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74EBD5, #9FACE6);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 70%;
+            max-width: 900px;
+            height: 80vh;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .header, .footer {
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .note-post {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .note-post:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .back-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .search-bar {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 60%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Saved Notes</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search notes...">
+            <button onclick="searchNotes()">Search</button>
+        </div>
+    </div>
+    <div class="content" id="notesContent">
+        <!-- Notes will load here -->
+    </div>
+    <div class="footer">
+        <button class="back-btn" onclick="goBack()">Go Back</button>
+    </div>
+</div>
+
+<script>
+    function loadNotes() {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        const notesContent = document.getElementById('notesContent');
+        notesContent.innerHTML = '';
+        if (notes.length > 0) {
+            notes.forEach((note, index) => {
+                const notePost = document.createElement('div');
+                notePost.className = 'note-post';
+                notePost.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <div>${note.date}</div>
+                `;
+                notePost.onclick = () => {
+                    window.location.href = `note.html?index=${index}`;
+                };
+                notesContent.appendChild(notePost);
+            });
+        } else {
+            notesContent.innerHTML = '<p>No saved notes found!</p>';
+        }
+    }
+
+    function searchNotes() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        const notesContent = document.getElementById('notesContent');
+        notesContent.innerHTML = '';
+
+        const filteredNotes = notes.filter(note => 
+            note.title.toLowerCase().includes(searchInput)
+        );
+        
+        if (filteredNotes.length > 0) {
+            filteredNotes.forEach((note, index) => {
+                const notePost = document.createElement('div');
+                notePost.className = 'note-post';
+                notePost.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <div>${note.date}</div>
+                `;
+                notePost.onclick = () => {
+                    window.location.href = `note.html?index=${index}`;
+                };
+                notesContent.appendChild(notePost);
+            });
+        } else {
+            notesContent.innerHTML = '<p>No matching notes found!</p>';
+        }
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+
+    window.onload = loadNotes;
+</script>
+</body>
+</html>
